@@ -2,7 +2,7 @@
 
 ## 说明
 
-* 支持 010 Editor 10.x - 14.x 版本激活码的生成
+* 支持 010 Editor 10.x - 15.x 版本激活码的生成
 * 相关代码基于 Python 3.9，暂不支持 Python 2
 * GUI 部分基于 PyQt5 ，界面是自己瞎画的
 * 激活流程及注册码生成过程参考 [[原创] 逆向分析010editor](https://bbs.kanxue.com/thread-261290.htm) 文章
