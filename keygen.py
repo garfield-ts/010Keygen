@@ -1,13 +1,33 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 import random
-import datetime
+from datetime import datetime, timedelta
+import argparse
 
 from typing import Union
-from config import TABLE, KEY_LIST
+from config import TABLE, KEY_LIST, DEFAULT_DATE, CHECK_DATE
 
 TIME_VAL = []
 COUNT_VAL = []
+
+
+def is_valid_date(date_string, date_format="%Y-%m-%d") -> bool:
+    try:
+        cur_date = datetime.strptime(date_string, date_format)
+        if (cur_date - CHECK_DATE).days > 0:
+            return True
+        return False
+    except ValueError:
+        return False
+
+
+def diff_date(cur_date, date_format="%Y-%m-%d") -> int:
+    # 将日期字符串转换为 datetime 对象
+    cur_date_obj = datetime.strptime(cur_date, date_format)
+    # end_date = datetime.datetime.strptime(end_date, date_format)
+    # 计算日期差
+    date_diff = cur_date_obj - CHECK_DATE
+    return date_diff.days
 
 
 def get_random_expire_time(days_num: int, is_max=False) -> (int, int):
@@ -115,10 +135,9 @@ def get_password_from_username(username: str, user_cnt=0, max_user=False, days_c
     print("激活码", password)
     print("可激活用户数", user_val0 // 0xB)
 
-    base_date = datetime.datetime(year=2019, month=12, day=7)
-    expire_date = base_date + datetime.timedelta(days=TIME_VAL.index(days_val0))
+    expire_date = CHECK_DATE + timedelta(days=TIME_VAL.index(days_val0))
     print("到期时间为", expire_date.strftime("%Y-%m-%d"))
-    print("剩余天数为", (expire_date - datetime.datetime.now()).days, "天")
+    print("剩余天数为", (expire_date - datetime.now()).days, "天")
     return password
 
 
@@ -159,23 +178,42 @@ def get_evaluation_password_from_username(username: str, user_cnt=0, max_user=Fa
     return password
 
 
+def init_parser():
+    arg_parser = argparse.ArgumentParser(description='Generate a license key for 010 Editor 10.x-14.x')
+    arg_parser.add_argument('-v', '--version', action='version', version='010_Keygen 1.1')
+    arg_parser.add_argument('-u', '--user', help='Username', default='Test')
+    arg_parser.add_argument('-n', '--num', type=int, help='Max user number', default=1)
+    arg_parser.add_argument('-d', '--date', help='Expire date', default=DEFAULT_DATE)
+    arg_parser.add_argument('-t', '--type', help='Licensetype', default='0xac', choices=KEY_LIST.get_name_list())
+
+    arg_list = arg_parser.parse_args()
+    return arg_list
+
+
 if __name__ == "__main__":
-    license_type = "0xac"
-    # license_type = "0x9c"
-    # license_type = "0xfc"
-    uname = "TestUser"
-    prefer_user = 2
-    key = KEY_LIST.get_by_name(license_type)
+    args = init_parser()
+    # 校验授权到期日期有效性
+    exp_date = args.date
+    if not is_valid_date(exp_date):
+        print(f"[{exp_date}] not valid date, use [{DEFAULT_DATE}] as default.")
+        exp_date = DEFAULT_DATE
+    # 校验授权密钥类型有效性
+    key = KEY_LIST.get_by_name(args.type)
     if key is None:
-        raise ValueError(f"License type [{license_type}] not supported.")
+        raise ValueError(f"License type [{args.type}] not supported.")
     if not key.activated:
-        raise ValueError(f"License type [{license_type}] not available for activating.")
+        raise ValueError(f"License type [{args.type}] not available for activating.")
+    # 校验可激活用户数有效性
+    prefer_user = int(args.num)
+    if prefer_user <= 0 or prefer_user > 999:
+        print(f"[{prefer_user}] not valid user number, use [1] as default.")
+        prefer_user = 1
 
     if key.retail:
-        prefer_days = 10 * 365
+        prefer_days = diff_date(exp_date)
         # 按指定有效期、指定用户数生成激活码
-        get_password_from_username(username=uname, user_cnt=prefer_user, days_cnt=prefer_days)
+        get_password_from_username(username=args.user, user_cnt=prefer_user, days_cnt=prefer_days)
         # 按最长有效期、最大用户数生成激活码
         # get_password_from_username(username=uname, max_days=True, max_user=True)
     else:
-        get_evaluation_password_from_username(username=uname, user_cnt=prefer_user)
+        get_evaluation_password_from_username(username=args.user, user_cnt=prefer_user)

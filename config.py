@@ -1,5 +1,5 @@
 from typing import Optional
-from datetime import date
+from datetime import date, datetime
 
 
 class KeyInfo:
@@ -45,6 +45,9 @@ KEY_LIST = KeyList()
 KEY_LIST.add_key(KeyInfo(name="0xac", desc="零售密钥，可正常激活", activated=True, retail=True))
 KEY_LIST.add_key(KeyInfo(name="0x9c", desc="测试密钥，可激活但不再受官方支持", activated=True, retail=False))
 KEY_LIST.add_key(KeyInfo(name="0xfc", desc="版本密钥，不能用于激活", activated=False, retail=False))
+
+DEFAULT_DATE = f"{datetime.now().year}-12-31"
+CHECK_DATE = datetime(2019,12,7)
 
 TABLE = [0x39cb44b8, 0x23754f67, 0x5f017211, 0x3ebb24da, 0x351707c6, 0x63f9774b, 0x17827288, 0x0fe74821,
          0x5b5f670f, 0x48315ae8, 0x785b7769, 0x2b7a1547, 0x38d11292, 0x42a11b32, 0x35332244, 0x77437b60,
