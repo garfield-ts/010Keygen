@@ -32,16 +32,18 @@ cd 010Keygen && python3 main.py
 ```shell
 # 克隆项目到本地
 git clone https://github.com/garfield-ts/010Keygen.git
+cd 010Keygen
 # 生成注册码信息
 python3 keygen.py
+# 指定注册码参数
+python3 keygen.py -u Admin -n 1 -d 2029-12-31 -t 0xac
 ```
 
 #### 工具截图
 
-![Console](image/Console.png)
+![Console](image/Console-2.png)
 
 ## TODO
 
-* 命令行方式支持参数传入
 * 集成联网验证屏蔽功能
 * ……
